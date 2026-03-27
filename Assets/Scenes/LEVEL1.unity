@@ -1490,7 +1490,7 @@ MonoBehaviour:
   - {fileID: 669360656}
   - {fileID: 2015949667}
   - {fileID: 2130299778}
-  obstacleCount: 0
+  obstacleCount: 6
 --- !u!1001 &1174983965
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2541,7 +2541,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.05000013
+        value: 0.10000318
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2581,8 +2581,8 @@ LineRenderer:
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 3
-    numCapVertices: 0
+    numCornerVertices: 10
+    numCapVertices: 10
     alignment: 1
     textureMode: 0
     textureScale: {x: 1, y: 1}

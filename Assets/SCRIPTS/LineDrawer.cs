@@ -20,15 +20,19 @@ public class LineDrawer : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
         
-        // 1. Only start if we click the Green Dot (StartNode)
-        if (hit.collider != null && hit.collider.CompareTag("StartNode"))
+        if (hit.collider != null)
         {
-            isDrawing = true;
-            points.Clear();
-            lineRenderer.positionCount = 0;
-            
-            AddPoint(hit.collider.transform.position);
-            lastHitNode = hit.collider.gameObject;
+            // Check if object or its child is the StartNode
+            if (CheckTag(hit.collider.gameObject, "StartNode"))
+            {
+                isDrawing = true;
+                points.Clear();
+                lineRenderer.positionCount = 0;
+                
+                AddPoint(hit.collider.transform.position);
+                lastHitNode = hit.collider.gameObject;
+                Debug.Log("Started drawing from Green Dot!");
+            }
         }
     }
 
@@ -37,7 +41,7 @@ public class LineDrawer : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
 
-        // Visual: Line follows mouse
+        // Visual tip follows mouse
         lineRenderer.positionCount = points.Count + 1;
         lineRenderer.SetPosition(points.Count, mousePos);
 
@@ -45,29 +49,45 @@ public class LineDrawer : MonoBehaviour
 
         if (hit.collider != null && hit.collider.gameObject != lastHitNode)
         {
-            // 2. If we hit an obstacle, fail!
-            if (hit.collider.CompareTag("Obstacle"))
+            GameObject hitObj = hit.collider.gameObject;
+
+            // 1. Check for Obstacle (in parent or child)
+            if (CheckTag(hitObj, "Obstacle"))
             {
+                Debug.Log("Hit an Obstacle! Resetting...");
                 StopDrawing();
                 return;
             }
 
-            // 3. ONLY COMPLETE IF IT'S THE END NODE
-            if (hit.collider.CompareTag("EndNode"))
+            // 2. Check for EndNode (in parent or child)
+            if (CheckTag(hitObj, "EndNode"))
             {
-                AddPoint(hit.collider.transform.position);
+                Debug.Log("Hit the Red Dot! Level Complete!");
+                AddPoint(hitObj.transform.position);
                 CompleteLevel();
                 return;
             }
 
-            // 4. SNAPPING: If it's a regular grid box, snap to its center
-            // We check if the box is NOT a StartNode to avoid snapping back to start
-            if (!hit.collider.CompareTag("StartNode"))
+            // 3. SNAPPING: If it's an empty grid box, snap to center
+            if (!CheckTag(hitObj, "StartNode"))
             {
-                AddPoint(hit.collider.transform.position);
-                lastHitNode = hit.collider.gameObject;
+                AddPoint(hitObj.transform.position);
+                lastHitNode = hitObj;
             }
         }
+    }
+
+    // This helper function checks the object AND its children for the tag
+    bool CheckTag(GameObject obj, string tag)
+    {
+        if (obj.CompareTag(tag)) return true;
+        
+        // Check children (for when the sprite is inside the grid slot)
+        foreach (Transform child in obj.transform)
+        {
+            if (child.CompareTag(tag)) return true;
+        }
+        return false;
     }
 
     void AddPoint(Vector3 pos)
@@ -82,12 +102,12 @@ public class LineDrawer : MonoBehaviour
     {
         isDrawing = false;
         lineRenderer.positionCount = 0;
+        points.Clear();
     }
 
     void CompleteLevel()
     {
         isDrawing = false;
-        Debug.Log("Connected!");
         FindObjectOfType<PuzzleManager>().GenerateLevel();
     }
 }
