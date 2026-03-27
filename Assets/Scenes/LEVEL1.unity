@@ -1490,7 +1490,8 @@ MonoBehaviour:
   - {fileID: 669360656}
   - {fileID: 2015949667}
   - {fileID: 2130299778}
-  obstacleCount: 6
+  obstacleCount: 4
+  minStartEndDist: 2.5
 --- !u!1001 &1174983965
 PrefabInstance:
   m_ObjectHideFlags: 0
